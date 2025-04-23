@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>lồn</title>
+
+    <!-- Thêm Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&amp;display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            background-color: #f4f4f4;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .menu {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            width: 280px;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+            transition: box-shadow 0.3s ease; /* Hiệu ứng chuyển đổi viền */
+        }
+
+        /* Viền khung menu khi di chuột qua */
+        .menu:hover {
+            box-shadow: 0px 0px 15px rgba(255, 0, 0, 0.7); /* Viền đỏ khi hover */
+            border: 2px solid red; /* Thêm viền đỏ */
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .status .indicator {
+            width: 10px;
+            height: 10px;
+            background-color: green;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .time {
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .switch-item {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+        }
+
+        .switch-item label {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .switch-item input[type="checkbox"] {
+            appearance: none;
+            width: 40px;
+            height: 20px;
+            background-color: #ccc;
+            border-radius: 50px;
+            cursor: pointer;
+            position: relative;
+            outline: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .switch-item input[type="checkbox"]:checked {
+            background-color: #28a745;
+        }
+
+        .switch-item input[type="checkbox"]::before {
+            content: "";
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .switch-item input[type="checkbox"]:checked::before {
+            transform: translateX(20px);
+        }
+
+        .coder {
+            margin-top: 20px;
+            font-style: italic;
+            font-size: 14px;
+            text-align: right;
+            color: #888;
+        }
+
+        /* Style thông báo */
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #f8f9fa;
+            border: 2px solid #ccc;
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            display: none; /* Ban đầu ẩn */
+            z-index: 100;
+        }
+
+        .notification .close-btn {
+            background-color: #ff5733;
+            color: white;
+            font-size: 14px;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 5px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .notification .intro-text {
+            font-size: 14px;
+            color: #333;
+        }
+
+        /* Hiệu ứng xoay vòng */
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        #file-upload-section {
+            display: none;
+            margin-top: 10px;
+        }
+
+        #applyConfigBtn {
+            margin-top: 10px;
+        }
+    </style>
+  </head>
+  <body>
+
+    <!-- Hiệu ứng particles -->
+    <div id="particles-js"><canvas class="particles-js-canvas-el" width="375" height="667" style="width: 100%; height: 100%;"></canvas></div>
+
+    <!-- Thông báo -->
+    <div class="notification" id="notification">
+        <button class="close-btn" onclick="closeNotification()">X</button>
+        <div class="intro-text">
+            Chào mừng bạn đến với menu! Đây là nơi bạn có thể chọn các chức năng. Hãy thử nhấp vào các checkbox để khám phá thêm.
+        </div>
+    </div>
+
+    <div class="menu">
+        <div class="status">
+            <div class="indicator"></div>
+            <span>Trạng thái: Online</span>
+        </div>
+
+        <div class="time" id="current-time">Thời gian: 18:06:36</div>
+
+        <div class="switch-list">
+            <!-- 12 toggle switch -->
+            <div class="switch-item">
+                <label for="task1">| Unlock Cấu Hình |</label>
+                <input type="checkbox" id="task1">
+            </div>
+
+            <div class="switch-item">
+                <label for="task2">| Tối Ưu Cấu Hình |</label>
+                <input type="checkbox" id="task2">
+            </div>
+
+            <div class="switch-item">
+                <label for="task3">| Fix Cấu Hình Lỗi |</label>
+                <input type="checkbox" id="task3">
+            </div>
+
+            <div class="switch-item">
+                <label for="task4">| Nhẹ Tâm |</label>
+                <input type="checkbox" id="task4">
+            </div>
+
+            <div class="switch-item">
+                <label for="task5">| Block Hust |</label>
+                <input type="checkbox" id="task5">
+            </div>
+
+            <div class="switch-item">
+                <label for="task6">| FF |</label>
+                <input type="checkbox" id="task6">
+            </div>
+        </div>
+
+        <!-- Phần chọn tệp -->
+        <div id="file-upload-section">
+            <input type="file" id="fileInput" accept=".hxt">
+            <button id="applyConfigBtn" style="display: none;">Thay Đổi Cấu Hình</button>
+        </div>
+
+        <div class="coder">Coder: BY @Hoàng Xuân Tú</div>
+
+        <!-- Vòng quay và thông báo -->
+        <div class="loading" id="loading" style="display: none;">
+            <div class="spinner"></div>
+            <div class="loading-text">Đang Thay Đổi Cấu Hình</div>
+        </div>
+    </div>
+
+    <!-- Thêm âm thanh Flick Beep -->
+    <audio id="beep-sound" src="https://www.soundjay.com/button/flick-beep.wav"></audio>
+
+    <script>
+        function updateTime() {
+            const currentTimeElement = document.getElementById('current-time');
+            const now = new Date();
+            const formattedTime = now.toLocaleTimeString();
+            currentTimeElement.textContent = 'Thời gian: ' + formattedTime;
+        }
+
+        // Cập nhật thời gian mỗi giây
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // Tạo hiệu ứng Beep giống Console.Beep(200, 600)
+        function beep() {
+            var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            var oscillator = audioContext.createOscillator();
+            oscillator.type = 'sine';  // Loại sóng âm thanh
+            oscillator.frequency.setValueAtTime(200, audioContext.currentTime); // Tần số 200Hz
+            oscillator.connect(audioContext.destination);
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 0.6);  // Thời gian kéo dài 600ms
+        }
+
+        // Thêm sự kiện phát âm thanh khi click vào toggle
+        const toggles = document.querySelectorAll('.switch-item input[type="checkbox"]');
+        toggles.forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                beep(); // Phát âm thanh Beep
+
+                // Hiển thị vòng quay và thông báo "Đang dán files..."
+                const loadingElement = document.getElementById('loading');
+                loadingElement.style.display = 'block';
+
+                // Sau 5 giây, ẩn vòng quay và thông báo
+                setTimeout(() => {
+                    loadingElement.style.display = 'none';
+                }, 5000);
+            });
+        });
+
+        // Hiển thị thông báo khi vào trang
+        function showNotification() {
+            document.getElementById('notification').style.display = 'block';
+        }
+
+        // Tắt thông báo
+        function closeNotification() {
+            document.getElementById('notification').style.display = 'none';
+        }
+
+        // Hiển thị phần chọn tệp khi "Unlock Cấu Hình" được bật
+        const unlockConfigCheckbox = document.getElementById('task1');
+        const fileUploadSection = document.getElementById('file-upload-section');
+        const applyConfigBtn = document.getElementById('applyConfigBtn');
+
+        unlockConfigCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                fileUploadSection.style.display = 'block';
+            } else {
+                fileUploadSection.style.display = 'none';
+            }
+        });
+
+        // Thêm sự kiện cho nút "Thay Đổi Cấu Hình"
+        applyConfigBtn.addEventListener('click', function() {
+            const loadingElement = document.getElementById('loading');
+            loadingElement.style.display = 'block';
+
+            // Ẩn nút "Thay Đổi Cấu Hình" sau khi nhấn
+            applyConfigBtn.style.display = 'none';
+
+            // Sau 5 giây, ẩn vòng quay và thông báo
+            setTimeout(() => {
+                loadingElement.style.display = 'none';
+            }, 5000);
+        });
+    </script>
+
+    <!-- Thêm thư viện particles.js -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 100, density: { enable: true, value_area: 800 } },
+                color: { value: '#ff0000' },
+                shape: {
+                    type: 'circle',
+                    stroke: { width: 0, color: '#ff0000' },
+                    polygon: { nb_sides: 5 }
+                },
+                opacity: {
+                    value: 0.5,
+                    random: true,
+                    anim: { enable: true, speed: 1, opacity_min: 0, sync: false }
+                },
+                size: {
+                    value: 5,
+                    random: true,
+                    anim: { enable: false }
+                },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: '#ff0000',
+                    opacity: 0.4,
+                    width: 2
+                },
+                move: {
+                    enable: true,
+                    speed: 6,
+                    direction: 'none',
+                    random: false,
+                    straight: false,
+                    out_mode: 'out',
+                    bounce: false,
+                    attract: { enable: false }
+                }
+            }
+        });
+    </script>
+
+  </body>
+</html>
